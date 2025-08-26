@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD Básico</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    .actions button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <h2>CRUD con HTML, CSS y JS</h2>
+  
+  <input type="text" id="nombre" placeholder="Nombre">
+  <input type="text" id="email" placeholder="Email">
+  <button onclick="agregarRegistro()">Agregar</button>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-registros"></tbody>
+  </table>
+
+  <script>
+    let registros = JSON.parse(localStorage.getItem('registros')) || [];
+    let indexEditar = null;
+
+    function renderizarTabla() {
+      const tabla = document.getElementById('tabla-registros');
+      tabla.innerHTML = '';
+      registros.forEach((registro, index) => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${registro.nombre}</td>
+            <td>${registro.email}</td>
+            <td class="actions">
+              <button onclick="editarRegistro(${index})">Editar</button>
+              <button onclick="eliminarRegistro(${index})">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function agregarRegistro() {
+      const nombre = document.getElementById('nombre').value;
+      const email = document.getElementById('email').value;
+
+      if (!nombre || !email) {
+        alert("Completa todos los campos.");
+        return;
+      }
+
+      if (indexEditar !== null) {
+        registros[indexEditar] = { nombre, email };
+        indexEditar = null;
+      } else {
+        registros.push({ nombre, email });
+      }
+
+      localStorage.setItem('registros', JSON.stringify(registros));
+      document.getElementById('nombre').value = '';
+      document.getElementById('email').value = '';
+      renderizarTabla();
+    }
+
+    function editarRegistro(index) {
+      const registro = registros[index];
+      document.getElementById('nombre').value = registro.nombre;
+      document.getElementById('email').value = registro.email;
+      indexEditar = index;
+    }
+
+    function eliminarRegistro(index) {
+      if (confirm("¿Estás seguro de eliminar este registro?")) {
+        registros.splice(index, 1);
+        localStorage.setItem('registros', JSON.stringify(registros));
+        renderizarTabla();
+      }
+    }
+
+    renderizarTabla();
+  </script>
+</body>
+</html>
